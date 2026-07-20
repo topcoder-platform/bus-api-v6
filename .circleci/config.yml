@@ -1,0 +1,81 @@
+version: 2.1
+
+defaults: &defaults
+  docker:
+    - image: cimg/python:3.13.2-browsers
+
+install_dependencies: &install_dependencies
+  name: Install build and deployment dependencies
+  command: |
+    sudo apt-get update
+    sudo apt-get install -y jq python3-pip
+    sudo pip3 install awscli --upgrade
+
+install_deploy_suite: &install_deploy_suite
+  name: Install the Topcoder deployment suite
+  command: |
+    git clone --branch v1.4.20 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
+    cp ../buildscript/master_deploy.sh .
+    cp ../buildscript/buildenv.sh .
+    cp ../buildscript/awsconfiguration.sh .
+    cp ../buildscript/psvar-processor.sh .
+
+build_and_deploy_steps: &build_and_deploy_steps
+  - checkout
+  - setup_remote_docker
+  - run: *install_dependencies
+  - run: *install_deploy_suite
+  - run:
+      name: Build the service image
+      command: docker buildx build --load --no-cache=true -t "${APPNAME}:latest" .
+  - run:
+      name: Deploy using the Topcoder deployment suite
+      command: |
+        ./awsconfiguration.sh "$DEPLOY_ENV"
+        source awsenvconf
+        ./psvar-processor.sh -t appenv -p "/config/${APPNAME}/deployvar"
+        source deployvar_env
+        ./master_deploy.sh \
+          -d ECS \
+          -e "$DEPLOY_ENV" \
+          -t latest \
+          -j "/config/${APPNAME}/appvar,/config/common/global-appvar" \
+          -i "$APPNAME" \
+          -p FARGATE
+        aws ecs wait services-stable \
+          --cluster "$AWS_ECS_CLUSTER" \
+          --services "$AWS_ECS_SERVICE"
+        active_task_definition="$(aws ecs describe-services \
+          --cluster "$AWS_ECS_CLUSTER" \
+          --services "$AWS_ECS_SERVICE" \
+          --query 'services[0].taskDefinition' \
+          --output text)"
+        active_image="$(aws ecs describe-task-definition \
+          --task-definition "$active_task_definition" \
+          --query "taskDefinition.containerDefinitions[?name=='${AWS_ECS_CONTAINER_NAME}'].image | [0]" \
+          --output text)"
+        expected_image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_REPOSITORY}:${CIRCLE_BUILD_NUM}"
+        if [[ "$active_image" != "$expected_image" ]]; then
+          echo "ECS stabilized on an unexpected task-definition image." >&2
+          exit 1
+        fi
+
+jobs:
+  build-dev:
+    <<: *defaults
+    environment:
+      APPNAME: bus-api-v6
+      DEPLOY_ENV: DEV
+      DEPLOYMENT_ENVIRONMENT: dev
+    steps: *build_and_deploy_steps
+
+workflows:
+  build-and-deploy:
+    jobs:
+      - build-dev:
+          context: org-global
+          serial-group: << pipeline.project.slug >>/deploy-dev
+          filters:
+            branches:
+              only:
+                - develop
