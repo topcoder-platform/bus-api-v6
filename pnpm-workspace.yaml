@@ -1,0 +1,24 @@
+packages:
+  - '.'
+
+# The service intentionally consumes tc-core-library-js from GitHub.
+blockExoticSubdeps: false
+autoInstallPeers: false
+
+overrides:
+  axios: 1.18.1
+  'brace-expansion@<1.1.13': 1.1.13
+  fast-uri: 3.1.2
+  follow-redirects: 1.16.0
+  form-data: 4.0.6
+  lodash: 4.18.1
+  'minimatch@<3.1.4': 3.1.4
+  multer: 2.2.0
+  path-to-regexp: 8.4.2
+  qs: 6.15.3
+
+allowBuilds:
+  '@nestjs/core@11.1.28': false
+  '@scarf/scarf@1.4.0': false
+  '@swc/core@1.15.43': true
+  'dtrace-provider@0.8.8': false
