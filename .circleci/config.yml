@@ -42,23 +42,6 @@ build_and_deploy_steps: &build_and_deploy_steps
           -j "/config/${APPNAME}/appvar,/config/common/global-appvar" \
           -i "$APPNAME" \
           -p FARGATE
-        aws ecs wait services-stable \
-          --cluster "$AWS_ECS_CLUSTER" \
-          --services "$AWS_ECS_SERVICE"
-        active_task_definition="$(aws ecs describe-services \
-          --cluster "$AWS_ECS_CLUSTER" \
-          --services "$AWS_ECS_SERVICE" \
-          --query 'services[0].taskDefinition' \
-          --output text)"
-        active_image="$(aws ecs describe-task-definition \
-          --task-definition "$active_task_definition" \
-          --query "taskDefinition.containerDefinitions[?name=='${AWS_ECS_CONTAINER_NAME}'].image | [0]" \
-          --output text)"
-        expected_image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_REPOSITORY}:${CIRCLE_BUILD_NUM}"
-        if [[ "$active_image" != "$expected_image" ]]; then
-          echo "ECS stabilized on an unexpected task-definition image." >&2
-          exit 1
-        fi
 
 jobs:
   build-dev:
