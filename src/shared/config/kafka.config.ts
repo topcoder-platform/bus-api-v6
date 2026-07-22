@@ -6,7 +6,7 @@ import { parseBoolean, parseCommaSeparated, parseInteger } from './env.utils';
  * The shared Kafka layer maps these values into its producer and admin clients.
  */
 export const KafkaConfig = {
-  brokers: parseCommaSeparated(process.env.KAFKA_BROKERS, ['localhost:9092']),
+  brokers: parseCommaSeparated(process.env.KAFKA_URL, ['localhost:9092']),
   clientId: process.env.KAFKA_CLIENT_ID || 'bus-api-v6',
   tls: {
     enabled: parseBoolean(process.env.KAFKA_TLS_ENABLED, false),
