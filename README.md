@@ -76,7 +76,7 @@ Event bodies must be JSON objects with own properties named `topic`, `originator
 | `NODE_ENV` | `development` | Runtime environment name. |
 | `AUTH_SECRET` | empty | Shared secret used by Topcoder JWT validation. |
 | `VALID_ISSUERS` | Topcoder development and production issuer JSON array | Accepted JWT issuers. |
-| `KAFKA_BROKERS` | `localhost:9092` | Comma-separated Kafka broker list. |
+| `KAFKA_URL` | `localhost:9092` | Comma-separated Kafka broker list. |
 | `KAFKA_CLIENT_ID` | `bus-api-v6` | Kafka client identifier. |
 | `KAFKA_TLS_ENABLED` | `false` | Enables Kafka TLS. |
 | `KAFKA_TLS_REJECT_UNAUTHORIZED` | `true` | Enables Kafka TLS certificate verification. |
