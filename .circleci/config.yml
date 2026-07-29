@@ -52,6 +52,14 @@ jobs:
       DEPLOYMENT_ENVIRONMENT: dev
     steps: *build_and_deploy_steps
 
+  build-prod:
+    <<: *defaults
+    environment:
+      APPNAME: bus-api-v6
+      DEPLOY_ENV: PROD
+      DEPLOYMENT_ENVIRONMENT: prod
+    steps: *build_and_deploy_steps
+
 workflows:
   build-and-deploy:
     jobs:
@@ -62,3 +70,10 @@ workflows:
             branches:
               only:
                 - develop
+      - build-prod:
+          context: org-global
+          serial-group: << pipeline.project.slug >>/deploy-prod
+          filters:
+            branches:
+              only:
+                - master
