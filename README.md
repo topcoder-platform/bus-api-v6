@@ -64,7 +64,7 @@ After starting the service on the default port, the Swagger UI is available at [
 
 - `POST /v6/bus/events` requires the `write:bus_api` M2M scope and returns `202 Accepted` without a body after Kafka accepts the event.
 - `GET /v6/bus/topics` requires the `read:bus_topics` M2M scope and returns the Kafka topic names. `HEAD /v6/bus/topics` requires the same scope and runs the same metadata availability path without a body.
-- `GET /v6/bus/health` and `HEAD /v6/bus/health` are unauthenticated. They succeed only while Kafka is both ready and connected; GET returns exactly `{ "health": "ok" }` and HEAD returns no body.
+- `GET /v6/bus/health` and `HEAD /v6/bus/health` are unauthenticated. Health reads cached Kafka lifecycle state without waiting on Kafka. A new task returns `503 Service Unavailable` until Kafka succeeds once, protecting rolling deployments from replacing a working task with an invalid Kafka configuration. After that first success, health remains available during bounded runtime reconnect attempts and returns 503 only after recovery is exhausted or shutdown starts. GET returns exactly `{ "health": "ok" }` and HEAD returns no body. Publishing remains stricter and accepts events only in the `Ready` state.
 
 Event bodies must be JSON objects with own properties named `topic`, `originator`, `timestamp`, `mime-type`, and `payload`. Topics must match `^([a-zA-Z0-9]+\.)+[a-zA-Z0-9]+$`; the string fields follow the legacy contract, and optional `key` must be a string. Additional fields are preserved and the submitted object is published without sanitizing, renaming, or stripping properties.
 
@@ -84,18 +84,22 @@ Event bodies must be JSON objects with own properties named `topic`, `originator
 | `KAFKA_SASL_USERNAME` | empty | Kafka SASL username. |
 | `KAFKA_SASL_PASSWORD` | empty | Kafka SASL password. |
 | `KAFKA_CONNECTION_TIMEOUT` | `10000` | Kafka connection timeout in milliseconds. |
-| `KAFKA_REQUEST_TIMEOUT` | `30000` | Kafka request timeout in milliseconds. |
-| `KAFKA_RETRY_ATTEMPTS` | `5` | Kafka retry attempt count. |
-| `KAFKA_INITIAL_RETRY_TIME` | `100` | Initial Kafka retry delay in milliseconds. |
-| `KAFKA_MAX_RETRY_TIME` | `30000` | Maximum Kafka retry delay in milliseconds. |
+| `KAFKA_BROKER_TIMEOUT` | `5000` | Kafka broker operation timeout in milliseconds. |
+| `KAFKA_REQUEST_TIMEOUT` | `30000` | End-to-end Kafka request timeout in milliseconds. |
+| `KAFKA_METADATA_REFRESH_INTERVAL` | `60000` | Active metadata-check interval in milliseconds; must remain below the current 600000 ms broker idle timeout. |
+| `KAFKA_RETRY_ATTEMPTS` | `5` | Fresh producer/admin recovery attempt budget. |
+| `KAFKA_INITIAL_RETRY_TIME` | `100` | Initial Kafka recovery delay in milliseconds. |
+| `KAFKA_MAX_RETRY_TIME` | `30000` | Maximum Kafka recovery delay in milliseconds. |
 | `LOG_LEVEL` | `info` | Application logging level. |
 | `CORS_ALLOWED_ORIGIN` | empty | Optional additional exact CORS origin. |
 
 ## Internal Kafka layer
 
-The shared producer-focused integration uses `@platformatic/kafka` with the v6-only `KAFKA_*` environment variables listed above. It owns one producer and one admin metadata client, exposes the readiness and connection status used by health handling, and closes both clients through Nest shutdown hooks.
+The shared producer-focused integration uses `@platformatic/kafka` `2.8.0` with the v6-only `KAFKA_*` environment variables listed above. It owns one producer and one admin metadata client and closes both clients through Nest shutdown hooks. A background, single-flight metadata check actively verifies both clients at the configured refresh interval; failures trigger bounded reconnection and client recreation.
 
-Publishing serializes the complete submitted event body as JSON rather than publishing only its `payload`. The optional event key is included only when supplied. Each message contains exactly the buffer-backed `originator`, `mime-type`, `timestamp`, and `topic` Kafka headers, preserving the `mime-type` spelling.
+Health handling reads the resulting lifecycle state from memory and never performs Kafka I/O on the request path. Initial health is withheld until Kafka verifies successfully. Subsequent reconnecting is treated as healthy while recovery remains bounded, but publishing requires the producer to be fully `Ready`. Terminal recovery failure and shutdown states are unhealthy.
+
+Publishing serializes the complete submitted event body as JSON rather than publishing only its `payload`. The optional event key is included only when supplied. Each message contains exactly the buffer-backed `originator`, `mime-type`, `timestamp`, and `topic` Kafka headers, preserving the `mime-type` spelling. Platformatic operation retries and stale-metadata replay are disabled: one HTTP publish invokes one producer send, and a transport failure is returned to the caller while client recovery prepares subsequent requests.
 
 Topic listing always attempts a fresh all-topic metadata query. Successful results replace an in-memory last-known topic snapshot and refresh timestamp; when a later query fails, the snapshot is returned defensively. Metadata failures before any successful snapshot produce a server error from the topics endpoints.
 
@@ -105,4 +109,5 @@ Topic listing always attempts a fresh all-topic metadata query. Successful resul
 nvm use
 pnpm lint
 pnpm build
+pnpm test
 ```

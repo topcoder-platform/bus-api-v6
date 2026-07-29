@@ -83,16 +83,20 @@ export class BusService {
   }
 
   /**
-   * Reports health only when the Kafka layer is both ready and connected.
+   * Reports cached process health without performing Kafka I/O.
+   *
+   * Startup remains unavailable until Kafka succeeds once. After that first
+   * success, bounded runtime recovery remains healthy so the load balancer does
+   * not replace a task while it is actively repairing Kafka clients.
    *
    * @returns The exact successful health response.
-   * @throws ServiceUnavailableException while Kafka is unavailable.
+   * @throws ServiceUnavailableException after recovery fails or during stop.
    */
   getHealth(): HealthResponseDto {
     const status = this.kafkaProducer.getKafkaStatus();
-    if (!status.ready || !status.connected) {
+    if (!status.healthy) {
       throw new ServiceUnavailableException({
-        message: 'Kafka is not ready or connected',
+        message: 'Kafka recovery is unavailable or has failed',
       });
     }
 

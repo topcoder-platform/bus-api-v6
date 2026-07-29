@@ -2,6 +2,7 @@
 export enum KafkaConnectionState {
   Initializing = 'initializing',
   Ready = 'ready',
+  Reconnecting = 'reconnecting',
   Failed = 'failed',
   ShuttingDown = 'shutting-down',
   Stopped = 'stopped',
@@ -43,9 +44,14 @@ export interface KafkaBusEvent {
 /** Readiness and connection information exposed for future health checks. */
 export interface KafkaStatus {
   state: KafkaConnectionState;
+  /** Last active producer/admin verification result, not passive socket state. */
   connected: boolean;
+  /** Whether the cached lifecycle state is suitable for ALB liveness checks. */
+  healthy: boolean;
+  /** Whether publishing is currently permitted. */
   ready: boolean;
   initializationAttempts: number;
+  reconnectAttempts: number;
   lastFailureReason?: string;
   lastSuccessfulMetadataRefreshTime?: string;
 }

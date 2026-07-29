@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class HealthResponseDto {
   @ApiProperty({
     description:
-      'Healthy status returned only while Kafka is ready and connected.',
+      'Healthy after Kafka first becomes ready, including bounded runtime recovery.',
     enum: ['ok'],
     example: 'ok',
   })

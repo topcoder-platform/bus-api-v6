@@ -21,7 +21,12 @@ export const KafkaConfig = {
     password: process.env.KAFKA_SASL_PASSWORD || undefined,
   },
   connectionTimeout: parseInteger(process.env.KAFKA_CONNECTION_TIMEOUT, 10000),
+  brokerTimeout: parseInteger(process.env.KAFKA_BROKER_TIMEOUT, 5000),
   requestTimeout: parseInteger(process.env.KAFKA_REQUEST_TIMEOUT, 30000),
+  metadataRefreshInterval: parseInteger(
+    process.env.KAFKA_METADATA_REFRESH_INTERVAL,
+    60000,
+  ),
   retry: {
     attempts: parseInteger(process.env.KAFKA_RETRY_ATTEMPTS, 5),
     initialRetryTime: parseInteger(process.env.KAFKA_INITIAL_RETRY_TIME, 100),
