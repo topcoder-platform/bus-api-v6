@@ -1,6 +1,7 @@
 # Dependencies and compiled output
 /node_modules
 /dist
+/coverage
 
 # Environment files
 .env

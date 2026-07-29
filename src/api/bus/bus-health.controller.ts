@@ -9,7 +9,7 @@ import { BusService } from './bus.service';
 import { ErrorResponseDto } from './dto/error-response.dto';
 import { HealthResponseDto } from './dto/health-response.dto';
 
-/** Exposes unauthenticated health backed by Kafka readiness and connectivity. */
+/** Exposes unauthenticated health backed by cached Kafka lifecycle state. */
 @ApiTags('Health')
 @Controller('bus/health')
 export class BusHealthController {
@@ -21,10 +21,10 @@ export class BusHealthController {
   constructor(private readonly busService: BusService) {}
 
   /**
-   * Returns the exact healthy response when Kafka is ready and connected.
+   * Returns the exact healthy response while the process can serve or recover.
    *
-   * @returns `{ health: "ok" }` while the Kafka dependency is healthy.
-   * @throws ServiceUnavailableException while Kafka is unavailable.
+   * @returns `{ health: "ok" }` after readiness or during runtime recovery.
+   * @throws ServiceUnavailableException after recovery fails or during stop.
    */
   @Get()
   @ApiOperation({ summary: 'Report Kafka-backed service health' })
@@ -35,14 +35,16 @@ export class BusHealthController {
   }
 
   /**
-   * Applies the same Kafka health decision as `GET` without a response body.
+   * Applies the same cached health decision as `GET` without a response body.
    *
-   * @returns Nothing when Kafka is ready and connected.
-   * @throws ServiceUnavailableException while Kafka is unavailable.
+   * @returns Nothing after readiness or during bounded runtime recovery.
+   * @throws ServiceUnavailableException after recovery fails or during stop.
    */
   @Head()
   @ApiOperation({ summary: 'Check Kafka-backed service health' })
-  @ApiOkResponse({ description: 'Kafka is ready and connected.' })
+  @ApiOkResponse({
+    description: 'Kafka has become ready or runtime recovery is active.',
+  })
   @ApiServiceUnavailableResponse({ type: ErrorResponseDto })
   head(): void {
     this.busService.getHealth();
