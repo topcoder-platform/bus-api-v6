@@ -45,6 +45,11 @@ The API publishes complete legacy-compatible event bodies, lists Kafka topics, a
 
 ## Local setup
 
+Development and production use Node.js 26.5.1. The production image installs
+Alpine's `nodejs-current` package on Alpine 3.24 so Node links against the
+distribution's patched OpenSSL libraries; the build upgrades Alpine packages
+before installing Node.
+
 ```bash
 nvm use
 pnpm install
