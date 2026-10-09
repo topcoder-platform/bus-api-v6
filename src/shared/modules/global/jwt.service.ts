@@ -37,7 +37,10 @@ interface TcCoreLibrary {
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const tcCore = require('tc-core-library-js') as TcCoreLibrary;
 
-/** Validates Topcoder JWTs and exposes only the identity needed by Bus API. */
+/**
+ * Validates Topcoder JWTs and exposes only the identity needed by Bus API:
+ * the machine flag, M2M scopes, and user roles.
+ */
 @Injectable()
 export class JwtService implements OnModuleInit {
   private authenticator?: JwtAuthenticator;
@@ -58,9 +61,10 @@ export class JwtService implements OnModuleInit {
   }
 
   /**
-   * Validates a raw Bearer token and normalizes its M2M identity and scopes.
+   * Validates a raw Bearer token and normalizes its identity, scopes, and roles.
    * Tokens with at least one usable `scope` or `scopes` value are treated as
-   * M2M identities, while explicit machine identities remain supported.
+   * M2M identities, while explicit machine identities remain supported. User
+   * roles come from the `roles` value resolved by the Topcoder authenticator.
    *
    * @param token JWT value without the `Bearer` scheme prefix.
    * @returns The normalized token identity.
@@ -77,6 +81,7 @@ export class JwtService implements OnModuleInit {
     return {
       isMachine: scopes.length > 0 || payload.isMachine === true,
       scopes,
+      roles: this.normalizeRoles(payload.roles),
     };
   }
 
@@ -139,5 +144,22 @@ export class JwtService implements OnModuleInit {
           .filter(Boolean),
       ),
     ];
+  }
+
+  /**
+   * Converts a decoded user role claim to trimmed, non-empty strings.
+   *
+   * @param value Roles resolved by the Topcoder authenticator, usually an array.
+   * @returns The user's role names, or an empty list when the claim is absent.
+   */
+  private normalizeRoles(value: unknown): string[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    return value
+      .filter((role): role is string => typeof role === 'string')
+      .map((role) => role.trim())
+      .filter(Boolean);
   }
 }

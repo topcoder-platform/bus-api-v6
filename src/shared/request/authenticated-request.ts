@@ -4,6 +4,7 @@ import { Request } from 'express';
 export interface JwtUser {
   isMachine: boolean;
   scopes: string[];
+  roles: string[];
 }
 
 /** Express request after optional Bearer-token validation. */
