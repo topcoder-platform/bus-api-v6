@@ -92,8 +92,9 @@ async function bootstrap(): Promise<void> {
     .setTitle('Topcoder Bus API v6')
     .setDescription(
       'Publishes events, lists Kafka topics, and reports Kafka-backed health. ' +
-        'Event publishing requires the `write:bus_api` M2M scope; topic listing ' +
-        'requires the `read:bus_topics` M2M scope. Health is unauthenticated.',
+        'Event publishing requires the `write:bus_api` M2M scope or a user ' +
+        'token with the `administrator` role; topic listing requires the ' +
+        '`read:bus_topics` M2M scope. Health is unauthenticated.',
     )
     .setVersion('6.0')
     .addBearerAuth({
@@ -101,7 +102,8 @@ async function bootstrap(): Promise<void> {
       scheme: 'bearer',
       bearerFormat: 'JWT',
       name: 'JWT',
-      description: 'Topcoder M2M JWT containing the endpoint-required scope',
+      description:
+        'Topcoder M2M JWT containing the endpoint-required scope, or an administrator user JWT for event publishing',
       in: 'header',
     })
     .build();
