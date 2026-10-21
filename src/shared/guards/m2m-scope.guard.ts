@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { auth } from 'tc-core-library-js';
 import { SCOPES_KEY } from '../decorators/scopes.decorator';
 import { AuthenticatedRequest } from '../request/authenticated-request';
 
@@ -51,9 +52,7 @@ export class M2mScopeGuard implements CanActivate {
       throw new ForbiddenException({ message: 'M2M token required' });
     }
 
-    const hasRequiredScope = requiredScopes.every((scope) =>
-      user.scopes.includes(scope),
-    );
+    const hasRequiredScope = auth.hasScopes(user, requiredScopes, 'all');
     if (!hasRequiredScope) {
       throw new ForbiddenException({ message: 'Insufficient token scope' });
     }
