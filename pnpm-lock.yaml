@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  tc-core-library-js: github:topcoder-platform/tc-core-library-js#c262f4aca971904f308085bdeaaed35cdf3cfa7d
+  tc-core-library-js: github:topcoder-platform/tc-core-library-js#e844764e1c2cadcc01fd5e05029590319802af09
   axios: 1.18.1
   brace-expansion@^1: 1.1.16
   fast-uri@^3: 3.1.4
@@ -56,8 +56,8 @@ importers:
         specifier: ^7.8.2
         version: 7.8.2
       tc-core-library-js:
-        specifier: github:topcoder-platform/tc-core-library-js#c262f4aca971904f308085bdeaaed35cdf3cfa7d
-        version: https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/c262f4aca971904f308085bdeaaed35cdf3cfa7d(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
+        specifier: github:topcoder-platform/tc-core-library-js#e844764e1c2cadcc01fd5e05029590319802af09
+        version: https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/e844764e1c2cadcc01fd5e05029590319802af09(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
       winston:
         specifier: ^3.17.0
         version: 3.19.0
@@ -3594,9 +3594,9 @@ packages:
   tar-stream@3.2.0:
     resolution: {integrity: sha512-ojzvCvVaNp6aOTFmG7jaRD0meowIAuPc3cMMhSgKiVWws1GyHbGd/xvnyuRKcKlMpt3qvxx6r0hreCNITP9hIg==}
 
-  tc-core-library-js@https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/c262f4aca971904f308085bdeaaed35cdf3cfa7d:
-    resolution: {gitHosted: true, integrity: sha512-onaR3NpYEZMERxlwVPZ7zTTqe0ftey7sFvphSiZXRJlazYX/18AKhOcCIuRJ77zf2jtYpN0/0wgGV6RQQlWS+A==, tarball: https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/c262f4aca971904f308085bdeaaed35cdf3cfa7d}
-    version: 4.0.0-keycloak.0
+  tc-core-library-js@https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/e844764e1c2cadcc01fd5e05029590319802af09:
+    resolution: {gitHosted: true, integrity: sha512-dFpujy/umx6PBWgWqxnmzu7A9vGPF/DIZVCESrTQ8p1nLXu6Yxx85bL6xg9Do7vbH6V7C45hF6tOwPR+ZoJRpg==, tarball: https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/e844764e1c2cadcc01fd5e05029590319802af09}
+    version: 4.0.0-keycloak.1
     engines: {node: '>=18.19'}
 
   teex@1.0.1:
@@ -7756,7 +7756,7 @@ snapshots:
       - bare-buffer
       - react-native-b4a
 
-  tc-core-library-js@https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/c262f4aca971904f308085bdeaaed35cdf3cfa7d(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1):
+  tc-core-library-js@https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/e844764e1c2cadcc01fd5e05029590319802af09(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1):
     dependencies:
       axios: 1.18.1(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
       bunyan: 1.8.15

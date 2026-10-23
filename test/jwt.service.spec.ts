@@ -60,3 +60,52 @@ describe('shared Keycloak validator adapter', () => {
     );
   });
 });
+
+describe('USE_KEYCLOAK validator selection', () => {
+  const saved = { ...process.env };
+  const keycloakEnv = {
+    KEYCLOAK_ISSUER: 'https://keycloak.example/realms/m2m',
+    KEYCLOAK_AUDIENCE: 'https://api.example',
+    KEYCLOAK_TOKEN_URL: 'https://keycloak.example/m2m/token',
+  };
+  const keycloakNames = Object.keys(keycloakEnv);
+
+  /** Start the real core validator with only the given provider settings. */
+  function start(env: Record<string, string>): void {
+    process.env = { ...saved, ALLOW_LEGACY_USER_AUDIENCE: 'true', ...env };
+    for (const name of [...keycloakNames, 'USE_KEYCLOAK']) {
+      if (!(name in env)) delete process.env[name];
+    }
+    new JwtService().onModuleInit();
+  }
+
+  afterEach(() => {
+    process.env = { ...saved };
+  });
+
+  it('starts in Auth0 mode without any Keycloak settings', () => {
+    expect(() => start({ USE_KEYCLOAK: 'false' })).not.toThrow();
+    expect(() => start({})).not.toThrow();
+  });
+
+  it('accepts Auth0 machine-token settings in Auth0 mode', () => {
+    expect(() =>
+      start({
+        USE_KEYCLOAK: 'false',
+        LEGACY_M2M_ISSUERS: '["https://topcoder-dev.auth0.com/"]',
+        LEGACY_M2M_AUDIENCE: 'https://m2m.topcoder-dev.com/',
+      }),
+    ).not.toThrow();
+  });
+
+  it('requires the Keycloak settings when USE_KEYCLOAK=true', () => {
+    expect(() => start({ USE_KEYCLOAK: 'true' })).toThrow(TypeError);
+    expect(() => start({ USE_KEYCLOAK: 'true', ...keycloakEnv })).not.toThrow();
+  });
+
+  it('rejects a USE_KEYCLOAK value other than true or false', () => {
+    expect(() => start({ USE_KEYCLOAK: 'keycloak' })).toThrow(
+      'USE_KEYCLOAK must be true or false',
+    );
+  });
+});

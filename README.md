@@ -41,7 +41,7 @@ Current callers use a mix of `tc-bus-api-wrapper` with a `BUSAPI_URL` base, comp
 
 ## Supported behavior
 
-The API publishes complete legacy-compatible event bodies, lists Kafka topics, and reports Kafka-backed service health. Protected endpoints accept Topcoder M2M Bearer tokens validated with `AUTH_SECRET` and `VALID_ISSUERS`.
+The API publishes complete legacy-compatible event bodies, lists Kafka topics, and reports Kafka-backed service health. Protected endpoints accept Topcoder M2M Bearer tokens verified by `tc-core-library-js`. `USE_KEYCLOAK` selects the machine-token provider; see [docs/keycloak-m2m.md](docs/keycloak-m2m.md).
 
 ## Local setup
 
@@ -76,6 +76,9 @@ Event bodies must be JSON objects with own properties named `topic`, `originator
 | `NODE_ENV` | `development` | Runtime environment name. |
 | `AUTH_SECRET` | empty | Shared secret used by Topcoder JWT validation. |
 | `VALID_ISSUERS` | Topcoder development and production issuer JSON array | Accepted JWT issuers. |
+| `USE_KEYCLOAK` | unset (Auth0) | `true` validates Keycloak machine tokens; unset or `false` validates Auth0 machine tokens. Any other value fails at startup. |
+| `KEYCLOAK_ISSUER`, `KEYCLOAK_AUDIENCE`, `KEYCLOAK_TOKEN_URL` | unset | Keycloak realm settings; required when `USE_KEYCLOAK=true`. |
+| `LEGACY_M2M_ISSUERS`, `LEGACY_M2M_AUDIENCE` | unset | Auth0 machine-token issuers (JSON array, subset of `VALID_ISSUERS`) and audience; required to accept Auth0 machine tokens. |
 | `KAFKA_URL` | `localhost:9092` | Comma-separated Kafka broker list. |
 | `KAFKA_CLIENT_ID` | `bus-api-v6` | Kafka client identifier. |
 | `KAFKA_TLS_ENABLED` | `false` | Enables Kafka TLS. |
