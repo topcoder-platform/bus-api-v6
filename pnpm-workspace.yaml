@@ -6,7 +6,7 @@ blockExoticSubdeps: false
 autoInstallPeers: false
 
 overrides:
-  tc-core-library-js: github:topcoder-platform/tc-core-library-js#e844764e1c2cadcc01fd5e05029590319802af09
+  tc-core-library-js: github:topcoder-platform/tc-core-library-js#112d54a3ed66423e7305e94e174937823e76124e
   axios: 1.18.1
   'brace-expansion@^1': 1.1.16
   'fast-uri@^3': 3.1.4

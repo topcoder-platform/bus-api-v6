@@ -31,7 +31,7 @@
     "dotenv": "^17.4.2",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "tc-core-library-js": "github:topcoder-platform/tc-core-library-js#e844764e1c2cadcc01fd5e05029590319802af09",
+    "tc-core-library-js": "github:topcoder-platform/tc-core-library-js#112d54a3ed66423e7305e94e174937823e76124e",
     "winston": "^3.17.0"
   },
   "devDependencies": {
