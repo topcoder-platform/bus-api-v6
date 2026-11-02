@@ -110,6 +110,8 @@ nvm use
 pnpm lint
 pnpm build
 pnpm test
+pnpm test:dependency-compat
+pnpm audit
 ```
 
 ## Shared authentication and bus client (v6 refresh)
@@ -134,3 +136,10 @@ not retry POSTs automatically. Application retry/outbox behavior remains local.
 
 See the [core migration guide](https://github.com/topcoder-platform/tc-core-library-js/blob/v4.0.0-rc.1/MIGRATION.md)
 for the API mapping, compatibility requirements, and rollout scope.
+
+The production image uses Node 26 on Alpine 3.24 and runs as the non-root
+`node` user. Both dependency stages include the local minimatch compatibility
+package; it preserves older tooling interfaces while using the patched matcher.
+The Docker build runs lint, compilation and tests before copying production
+dependencies into the runtime. The shared authentication library is pinned to
+an immutable revision, and the existing audience/issuer configuration applies.
