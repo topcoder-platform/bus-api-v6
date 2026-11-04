@@ -29,8 +29,8 @@ FROM base AS production
 ENV NODE_ENV=production
 RUN rm -rf /usr/local/lib/node_modules /opt/yarn-v* \
   && rm -f /usr/local/bin/npm /usr/local/bin/npx
-COPY --from=build /usr/src/app/dist ./dist
-COPY --from=prod-deps /usr/src/app/node_modules ./node_modules
+COPY --from=build --chown=node:node /usr/src/app/dist ./dist
+COPY --from=prod-deps --chown=node:node /usr/src/app/node_modules ./node_modules
 EXPOSE 3000
 USER node
 CMD ["node", "dist/main.js"]
