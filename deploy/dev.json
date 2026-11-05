@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "environment": "dev",
+  "accountId": "811668436784",
+  "region": "us-east-1",
+  "deployRoleArn": "arn:aws:iam::811668436784:role/bus-api-v6-dev-deploy",
+  "taskRoleArn": null,
+  "executionRoleArn": "arn:aws:iam::811668436784:role/ecsTaskExecutionRole",
+  "cluster": "topcoder-infrastructure",
+  "service": "bus-api-v6",
+  "taskFamily": "bus-api-v6",
+  "circleciOrgId": "947bef5e-1669-415d-b83c-4fc85155b7df",
+  "circleciProjectId": "3b6d41f4-9675-4f70-95de-6a45eccadfbb",
+  "repository": "github.com/topcoder-platform/bus-api-v6",
+  "branch": "develop",
+  "images": {
+    "bus-api-v6": "bus-api-v6"
+  }
+}
