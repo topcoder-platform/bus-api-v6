@@ -1,6 +1,6 @@
 # ---- Base Stage ----
-FROM node:26.12.1-alpine3.24 AS base
-RUN apk upgrade --no-cache
+FROM node:26.13.1-alpine3.24 AS base
+RUN apk upgrade --no-cache && apk add --no-cache "zlib>=1.4-r0"
 WORKDIR /usr/src/app
 
 # ---- Tooling Stage ----
