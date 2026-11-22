@@ -25,10 +25,13 @@ COPY tools ./tools
 RUN pnpm install --prod --frozen-lockfile --ignore-scripts
 
 # ---- Production Stage ----
-FROM base AS production
+FROM alpine:3.24 AS production
+RUN apk upgrade --no-cache \
+    && apk add --no-cache ca-certificates 'nodejs-current~26' 'nodejs-current>=26.13.1-r0' 'libcrypto3>=3.5.9-r1' 'libssl3>=3.5.9-r1' 'zlib>=1.4-r0' \
+    && addgroup -S -g 1000 node \
+    && adduser -S -D -u 1000 -G node node
+WORKDIR /usr/src/app
 ENV NODE_ENV=production
-RUN rm -rf /usr/local/lib/node_modules /opt/yarn-v* \
-  && rm -f /usr/local/bin/npm /usr/local/bin/npx
 COPY --from=build --chown=node:node /usr/src/app/dist ./dist
 COPY --from=prod-deps --chown=node:node /usr/src/app/node_modules ./node_modules
 EXPOSE 3000
