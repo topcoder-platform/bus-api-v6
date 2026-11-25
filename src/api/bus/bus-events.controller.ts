@@ -10,7 +10,9 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Roles } from '../../shared/decorators/roles.decorator';
 import { Scopes } from '../../shared/decorators/scopes.decorator';
+import { UserRole } from '../../shared/enums/roles.enum';
 import { Scope } from '../../shared/enums/scopes.enum';
 import { BusService } from './bus.service';
 import { ErrorResponseDto } from './dto/error-response.dto';
@@ -31,6 +33,10 @@ export class BusEventsController {
   /**
    * Publishes a submitted event and returns `202 Accepted` without a body.
    *
+   * Callers need an M2M token with `write:bus_api` or a user token with the
+   * administrator role. Platform UI admin tools (antivirus rescan, Marathon
+   * Match tests, submission reprocessing) publish with the admin's own token.
+   *
    * @param body Raw JSON event body, including any caller-defined extra fields.
    * @returns A promise resolving with no response body after publication.
    * @throws BadRequestException for contract violations or unknown topics.
@@ -39,7 +45,12 @@ export class BusEventsController {
   @Post()
   @HttpCode(HttpStatus.ACCEPTED)
   @Scopes(Scope.WriteBusApi)
-  @ApiOperation({ summary: 'Publish an event to Kafka' })
+  @Roles(UserRole.Administrator)
+  @ApiOperation({
+    summary: 'Publish an event to Kafka',
+    description:
+      'Requires an M2M token with the `write:bus_api` scope or a user token with the `administrator` role.',
+  })
   @ApiBody({
     type: EventPayloadDto,
     description:

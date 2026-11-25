@@ -7,7 +7,7 @@ import { createJwtVerifier, type JwtVerifier } from 'tc-core-library-js';
 import { AuthConfig } from '../../config/auth.config';
 import { JwtUser } from '../../request/authenticated-request';
 
-/** Verifies callers through tc-core and exposes only the Bus API identity and scopes. */
+/** Verifies callers through tc-core and exposes only the Bus API identity, scopes, and roles. */
 @Injectable()
 export class JwtService implements OnModuleInit {
   private verifier?: JwtVerifier;
@@ -22,12 +22,12 @@ export class JwtService implements OnModuleInit {
     });
   }
 
-  /** Verifies a compact token and returns machine identity/scopes; throws UnauthorizedException on failure. */
+  /** Verifies a compact token and returns the caller's identity, scopes, and roles; throws UnauthorizedException on failure. */
   async validateToken(token: string): Promise<JwtUser> {
     try {
       if (!this.verifier) throw new Error('JWT verifier is not initialized');
-      const payload = await this.verifier.verify(token);
-      return { isMachine: payload.isMachine, scopes: payload.scopes };
+      const { isMachine, scopes, roles } = await this.verifier.verify(token);
+      return { isMachine, scopes, roles };
     } catch {
       throw new UnauthorizedException({ message: 'Invalid or expired token' });
     }
