@@ -41,7 +41,7 @@ Current callers use a mix of `tc-bus-api-wrapper` with a `BUSAPI_URL` base, comp
 
 ## Supported behavior
 
-The API publishes complete legacy-compatible event bodies, lists Kafka topics, and reports Kafka-backed service health. Protected endpoints accept Topcoder M2M Bearer tokens validated with `AUTH_SECRET` and `VALID_ISSUERS`.
+The API publishes complete legacy-compatible event bodies, lists Kafka topics, and reports Kafka-backed service health. Protected endpoints accept Topcoder M2M Bearer tokens validated with `AUTH_SECRET` and `VALID_ISSUERS`. Event publishing also accepts user tokens with the `administrator` role, which the `platform-ui` admin tools send.
 
 ## Local setup
 
@@ -62,7 +62,7 @@ After starting the service on the default port, the Swagger UI is available at [
 
 ## Endpoints
 
-- `POST /v6/bus/events` requires the `write:bus_api` M2M scope and returns `202 Accepted` without a body after Kafka accepts the event.
+- `POST /v6/bus/events` requires the `write:bus_api` M2M scope or a user token with the `administrator` role (matched case-insensitively), and returns `202 Accepted` without a body after Kafka accepts the event.
 - `GET /v6/bus/topics` requires the `read:bus_topics` M2M scope and returns the Kafka topic names. `HEAD /v6/bus/topics` requires the same scope and runs the same metadata availability path without a body.
 - `GET /v6/bus/health` and `HEAD /v6/bus/health` are unauthenticated. Health reads cached Kafka lifecycle state without waiting on Kafka. A new task returns `503 Service Unavailable` until Kafka succeeds once, protecting rolling deployments from replacing a working task with an invalid Kafka configuration. After that first success, health remains available during bounded runtime reconnect attempts and returns 503 only after recovery is exhausted or shutdown starts. GET returns exactly `{ "health": "ok" }` and HEAD returns no body. Publishing remains stricter and accepts events only in the `Ready` state.
 
