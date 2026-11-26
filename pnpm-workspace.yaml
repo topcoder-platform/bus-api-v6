@@ -1,5 +1,5 @@
 packages:
-- .
+  - .
 blockExoticSubdeps: false
 autoInstallPeers: false
 overrides:
@@ -35,3 +35,7 @@ allowBuilds:
   dtrace-provider: false
   unrs-resolver: true
   '@parcel/watcher': true
+minimumReleaseAgeExclude:
+  - '@nestjs/common@12.6.3'
+  - '@nestjs/core@12.6.3'
+  - '@nestjs/platform-express@12.6.3'

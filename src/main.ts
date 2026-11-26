@@ -3,7 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as cors from 'cors';
+import cors from 'cors';
 import { NextFunction, Request, Response } from 'express';
 import { ApiModule } from './api/api.module';
 import { AppModule } from './app.module';
